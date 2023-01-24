@@ -1,68 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:meals_app/screens/categories.dart';
-import 'favorites.dart';
+
 import '../widgets/main_drawer.dart';
+import './favorites.dart';
+import './categories.dart';
+import '../models/meal.dart';
 
 class Tabs extends StatefulWidget {
-  static const routeName = "/";
+  final List<Meal> favoriteMeals;
+
+  Tabs(this.favoriteMeals);
 
   @override
-  State<Tabs> createState() => _TabsState();
+  _TabsState createState() => _TabsState();
 }
 
-class _TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
-  final tabs = [
-    Tab(
-      icon: Icon(Icons.category),
-      text: 'Categories',
-    ),
-    Tab(
-      icon: Icon(Icons.star),
-      text: 'Favoriets',
-    )
-  ];
-
-  TabController _tabController;
+class _TabsState extends State<Tabs> {
+  List<Map<String, Object>> _pages;
+  int _selectedPageIndex = 0;
 
   @override
   void initState() {
+    _pages = [
+      {
+        'page': Categories(),
+        'title': 'Categories',
+      },
+      {
+        'page': Favorites(widget.favoriteMeals),
+        'title': 'Favorites',
+      },
+    ];
     super.initState();
-
-    _tabController = new TabController(vsync: this, length: tabs.length);
-
-    _tabController.addListener(() {
-      setState(() {
-        //_selectedIndex = _controller.index;
-      });
-    });
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-
-    super.dispose();
-  }
+  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(tabs[_tabController.index].text),
+        title: Text(_pages[_selectedPageIndex]['title']),
       ),
-      drawer: Drawer(
-        child: MainDrawer(),
+      drawer: MainDrawer(),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (int index) {
+          setState(() {
+            _selectedPageIndex = index;
+          });
+        },
+        children: <Widget>[
+          Categories(),
+          Favorites(widget.favoriteMeals),
+        ],
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[Categories(), Favorites()],
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.blue,
-        child: TabBar(
-          tabs: tabs,
-          controller: _tabController,
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (int index) {
+          setState(() {
+            _selectedPageIndex = index;
+            _pageController.animateToPage(
+              index,
+              duration: Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+            );
+          });
+        },
+        backgroundColor: Colors.blue,
+        unselectedItemColor: Colors.white,
+        selectedItemColor: Theme.of(context).colorScheme.secondary,
+        currentIndex: _selectedPageIndex,
+        items: [
+          BottomNavigationBarItem(
+            backgroundColor: Theme.of(context).primaryColor,
+            icon: Icon(Icons.category),
+            label: 'Categories',
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: Theme.of(context).primaryColor,
+            icon: Icon(Icons.star),
+            label: 'Favorites',
+          ),
+        ],
       ),
     );
   }
