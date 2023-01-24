@@ -1,11 +1,12 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:meals_app/dummy_data.dart';
-import 'package:meals_app/models/meal.dart';
 
 class MealDetails extends StatelessWidget {
   static const routeName = '/meal-detail';
 
-  Widget buildSectionTitle(BuildContext context, String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       child: Text(
@@ -15,6 +16,22 @@ class MealDetails extends StatelessWidget {
     );
   }
 
+  Widget _buildContainer(Widget child) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(10)),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(10),
+      height: 200,
+      width: 300,
+      child: child,
+    );
+  }
+
+//Text(selectedMeal.ingredients[index])
+
   @override
   Widget build(BuildContext context) {
     final mealId = ModalRoute.of(context).settings.arguments as String;
@@ -22,12 +39,13 @@ class MealDetails extends StatelessWidget {
       (element) => element.id == mealId,
     );
     return Scaffold(
-        appBar: AppBar(
-            title: Text(
-              "${selectedMeal.title}",
-            ),
-            centerTitle: true),
-        body: Column(
+      appBar: AppBar(
+          title: Text(
+            "${selectedMeal.title}",
+          ),
+          centerTitle: true),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
             Container(
               height: 300,
@@ -37,17 +55,9 @@ class MealDetails extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            buildSectionTitle(context, "Ingredients"),
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(10)),
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(10),
-              height: 200,
-              width: 300,
-              child: ListView.builder(
+            _buildSectionTitle(context, "Ingredients"),
+            _buildContainer(
+              ListView.builder(
                 itemCount: selectedMeal.ingredients.length,
                 itemBuilder: (context, index) {
                   return Card(
@@ -61,8 +71,35 @@ class MealDetails extends StatelessWidget {
                 },
               ),
             ),
-            buildSectionTitle(context, "Steps"),
+            _buildSectionTitle(context, "Steps"),
+            _buildContainer(ListView.builder(
+              itemBuilder: (context, index) => Column(
+                children: [
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      foregroundColor: Colors.black,
+                      child: Text('# ${(index + 1)}'),
+                    ),
+                    title: Text(selectedMeal.steps[index]),
+                  ),
+                  Divider()
+                ],
+              ),
+              itemCount: selectedMeal.steps.length,
+            ))
           ],
-        ));
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          Icons.delete,
+          color: Colors.black,
+        ),
+        onPressed: (() {
+          Navigator.of(context).pop(mealId);
+        }),
+      ),
+    );
   }
 }

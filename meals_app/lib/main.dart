@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meals_app/screens/meal_details.dart';
+import 'package:meals_app/screens/settings.dart';
+import 'package:meals_app/screens/tabs.dart';
 import 'screens/categories.dart';
 import 'screens/category_meals.dart';
 
@@ -26,15 +28,16 @@ class MyApp extends StatelessWidget {
               headline6: TextStyle(
                 fontSize: 20,
                 fontFamily: "Raleway",
+                color: Colors.white,
               ),
             ),
       ),
       routes: {
-        '/': (context) => Categories(),
+        '/': (context) => Tabs(),
         CategoryMeals.routeName: (context) => CategoryMeals(),
-        MealDetails.routeName: ((context) => MealDetails())
+        MealDetails.routeName: ((context) => MealDetails()),
+        Settings.routeName:(context) => Settings(),
       },
-      onGenerateRoute: ((settings) {}),
       onUnknownRoute: ((settings) {
         return MaterialPageRoute(
           builder: ((context) => Categories()),
